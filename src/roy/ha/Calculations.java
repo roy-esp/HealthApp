@@ -1,6 +1,6 @@
 package roy.ha;
 
-import java.awt.List;
+import java.util.List;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -28,10 +28,10 @@ public class Calculations {
 	public void generateCsv() throws Exception{
 		//Generates a CSV file with the windows. Which includes the attributes:label, and calculated parameters
 		
-		for(int i=0;i<3;i++) {
-			calc(i);
-			//x y z on different csv? and merge them for final common features? search csv merger.
-		}
+		
+		calc();
+			
+		
 		
 		
 		
@@ -39,87 +39,270 @@ public class Calculations {
 		
 	}
 	
-	public void calc(int column) throws Exception{
+	public void calc() throws Exception{
+		
+		//X
 		double xSummatory=0;
-		double sumaCuadratica=0;
-		double zcrSum=0;
-		double max=0;
-		double min=0;
-		HashMap<Integer, String> hmcolumn = new HashMap<Integer, String>();
-		hmcolumn.put(0, "x");
-		hmcolumn.put(1, "y");
-		hmcolumn.put(2, "z");
-		PrintWriter writer = new PrintWriter("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\features"+hmcolumn.get(column)+".csv");
+		double xSumaCuadratica=0;
+		double xZcrSum=0;
+		double xMax=0;
+		double xMin=0;
+		
+		//X
+		double ySummatory=0;
+		double ySumaCuadratica=0;
+		double yZcrSum=0;
+		double yMax=0;
+		double yMin=0;
+		
+		//X
+		double zSummatory=0;
+		double zSumaCuadratica=0;
+		double zZcrSum=0;
+		double zMax=0;
+		double zMin=0;
+		
+		//XYZ
+		double xyzSummatory=0;
+		double xyzMax=0;
+		
+		
+		//FREQ
+		//X
+		double xMaxAmpl=0;
+		int xIndexMaxAmpl=0;
+		//Y
+		double yMaxAmpl=0;
+		int yIndexMaxAmpl=0;
+		//Z
+		double zMaxAmpl=0;
+		int zIndexMaxAmpl=0;
+
+		
+		PrintWriter writer = new PrintWriter("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\features.csv");
 		
 		
 		for(int i=0; i<sensor.size()-samplesNumber;i+=(int)(samplesNumber*inverseOverlap)) {
-			for(int j=0;j<samplesNumber;j++) {
-				//arraylist(i+j)-->outputArrayList
+			
+			
+			
+			int n = (int) Math.pow(2,Math.round(Math.log10(samplesNumber)/Math.log10(2)));
+			double[][] timearray=new double[3][n];
+			for(int k=0; k<n;k++) {
+				if(k<sensor.size()) {
+					timearray[0][k]=Double.parseDouble(sensor.get(i+k)[0]);
+				}
+				else {
+					timearray[0][k]=0;
+				}
 				
+			}
+			
+			//GET FREQ(FFT)
+			//X
+			FreqCalc2 fft = new FreqCalc2(n);
+		    double[] im = new double[n];
+		    
+		    for(int l=0; l<n; l++) {
+		         im[l] = 0;
+		       }
+		    double[] freqarrayX=FreqCalc2.getFFT(fft, timearray[0], im);
+		    double[] freqarrayY=FreqCalc2.getFFT(fft, timearray[1], im);
+		    double[] freqarrayZ=FreqCalc2.getFFT(fft, timearray[2], im);
+		    
+		    for(int m=1; m<freqarrayX.length;m++) {
+		    	
+		    	//MAX AMPLITUDE
+		    	if (freqarrayX[m]>xMaxAmpl) {
+		    		xMaxAmpl=freqarrayX[m];
+		    		xIndexMaxAmpl=m;
+		    	}
+		    	if (freqarrayY[m]>yMaxAmpl) {
+		    		yMaxAmpl=freqarrayY[m];
+		    		yIndexMaxAmpl=m;
+		    	}
+		    	if (freqarrayZ[m]>zMaxAmpl) {
+		    		zMaxAmpl=freqarrayZ[m];
+		    		zIndexMaxAmpl=m;
+		    	}
+		    }
+			
+			
+			for(int j=0;j<samplesNumber;j++) {
+		
 				//Mean 
-				double valuex=Double.parseDouble(sensor.get(i+j)[column]);
+				
+				//X
+				double valuex=Double.parseDouble(sensor.get(i+j)[0]);
                 xSummatory+=valuex;
-                sumaCuadratica+=Math.pow(valuex, 2);
-                if(valuex>max) {
-                	max=valuex;
+                xSumaCuadratica+=Math.pow(valuex, 2);
+                
+                //Y
+                double valuey=Double.parseDouble(sensor.get(i+j)[1]);
+                ySummatory+=valuey;
+                ySumaCuadratica+=Math.pow(valuey, 2);
+                
+                //Z
+                double valuez=Double.parseDouble(sensor.get(i+j)[2]);
+                zSummatory+=valuez;
+                zSumaCuadratica+=Math.pow(valuez, 2);
+                
+                if(valuex>xMax) {
+                	xMax=valuex;
                 }
-                if(valuex<min) {
-                	min=valuex;
+                if(valuey>yMax) {
+                	yMax=valuey;
+                }
+                if(valuez>zMax) {
+                	zMax=valuez;
+                }
+                if(valuex<xMin) {
+                	xMin=valuex;
+                }
+                if(valuey<yMin) {
+                	yMin=valuey;
+                }
+                if(valuez<zMin) {
+                	zMin=valuez;
                 }
                 
                 if(j!=0) {
                 	//Zero crossing rate
-                	zcrSum+=Math.abs(Math.signum(Double.parseDouble(sensor.get(i+j)[column]))-Math.signum(Double.parseDouble(sensor.get(i+j-1)[column])));
+                	xZcrSum+=Math.abs(Math.signum(Double.parseDouble(sensor.get(i+j)[0]))-Math.signum(Double.parseDouble(sensor.get(i+j-1)[0])));
+                	yZcrSum+=Math.abs(Math.signum(Double.parseDouble(sensor.get(i+j)[1]))-Math.signum(Double.parseDouble(sensor.get(i+j-1)[1])));
+                	zZcrSum+=Math.abs(Math.signum(Double.parseDouble(sensor.get(i+j)[2]))-Math.signum(Double.parseDouble(sensor.get(i+j-1)[2])));
                 	
                 	
                 }
                 
                 
+                //XYZ
+                double sqrtxyz=Math.sqrt(Math.pow(valuex, 2)+Math.pow(valuey, 2)+Math.pow(valuez, 2));
+                xyzSummatory+=sqrtxyz;
+                
+                if(sqrtxyz>xyzMax) {
+                	xyzMax=sqrtxyz;
+                }
+                
+                
+                
 			}
+			
+			
+			
 			
 			//Mean
 			double xMean=xSummatory/samplesNumber;
+			double yMean=ySummatory/samplesNumber;
+			double zMean=zSummatory/samplesNumber;
+			double xyzMean=xyzSummatory/samplesNumber;
 		
 			
 			//Standard deviation
-			double[] sumArray=summatory(xMean,i,column);
-			double sd=Math.sqrt(sumArray[1]/sumArray[0]);
+			double[] xsumArray=summatory(xMean,i,0);
+			double xsd=Math.sqrt(xsumArray[1]/xsumArray[0]);
+			
+			double[] ysumArray=summatory(yMean,i,1);
+			double ysd=Math.sqrt(ysumArray[1]/ysumArray[0]);
+			
+			double[] zsumArray=summatory(zMean,i,2);
+			double zsd=Math.sqrt(zsumArray[1]/zsumArray[0]);
+			
+			double[] xyzsumArray=summatory(xyzMean,i);
+			double xyzsd=Math.sqrt(xyzsumArray[1]/xyzsumArray[0]);
 			
 			//Skewness
-			double sk=(sumArray[2]/sumArray[0])/(Math.pow(sd, 3));
+			double xsk=(xsumArray[2]/xsumArray[0])/(Math.pow(xsd, 3));
+			double ysk=(ysumArray[2]/ysumArray[0])/(Math.pow(ysd, 3));
+			double zsk=(zsumArray[2]/zsumArray[0])/(Math.pow(zsd, 3));
 			
 			
 			//Zero crossing rate
-			double zcr=zcrSum/(2*(samplesNumber-1));
+			double xzcr=xZcrSum/(2*(samplesNumber-1));
+			double yzcr=yZcrSum/(2*(samplesNumber-1));
+			double zzcr=zZcrSum/(2*(samplesNumber-1));
 			
 			
 			//Mean crossing rate
-			double mcr=sumArray[3]/(2*(samplesNumber-1));
+			double xmcr=xsumArray[3]/(2*(samplesNumber-1));
+			double ymcr=ysumArray[3]/(2*(samplesNumber-1));
+			double zmcr=zsumArray[3]/(2*(samplesNumber-1));
 			
 			
 			//RMS
-			double rms=Math.sqrt(sumaCuadratica/samplesNumber);
+			double xrms=Math.sqrt(xSumaCuadratica/samplesNumber);
+			double yrms=Math.sqrt(ySumaCuadratica/samplesNumber);
+			double zrms=Math.sqrt(zSumaCuadratica/samplesNumber);
 			
 			
 			//Energy
-			double energy=Math.sqrt(sumArray[1]);
+			double xenergy=Math.sqrt(xsumArray[1]);
+			double yenergy=Math.sqrt(ysumArray[1]);
+			double zenergy=Math.sqrt(zsumArray[1]);
 			
 			
 			//Range
-			double range=max-min;
+			double xrange=xMax-xMin;
+			double yrange=yMax-yMin;
+			double zrange=zMax-zMin;
 			
 			
 			//Median
 			
 			
+			//Interquartile range
+			
+			//Correlation
+			double xycorrelation=correlation(i,xMean, yMean, xsd, ysd,0);
+			double xzcorrelation=correlation(i,xMean, zMean, xsd, zsd,1);
+			double yzcorrelation=correlation(i,yMean, zMean, ysd, zsd,2);
+			
+			
+			//Freq
+			
+		
+			
 			//Write line
-			writer.println(xMean+","+sd+","+sk+","+zcr+","+mcr+","+rms+","+energy+","+range);
+			String xFeatures=xMean+","+xsd+","+xsk+","+xzcr+","+xmcr+","+xrms+","+xenergy+","+xrange;
+			String yFeatures=yMean+","+ysd+","+ysk+","+yzcr+","+ymcr+","+yrms+","+yenergy+","+yrange;
+			String zFeatures=zMean+","+zsd+","+zsk+","+zzcr+","+zmcr+","+zrms+","+zenergy+","+zrange;
+			String xyzFeatures=xyzMean+","+xyzsd+","+xyzMax+","+xycorrelation+","+xzcorrelation+","+yzcorrelation;
+			String freqFeatures=xMaxAmpl+","+xIndexMaxAmpl+","+yMaxAmpl+","+yIndexMaxAmpl+","+zMaxAmpl+","+zIndexMaxAmpl;
+			writer.println(xFeatures+","+yFeatures+","+zFeatures+","+xyzFeatures+","+freqFeatures);
+			
 			//Put 0 variables
 			xSummatory=0;
-			sumaCuadratica=0;
-			zcrSum=0;
-			max=0;
-			min=0;
+			xSumaCuadratica=0;
+			xZcrSum=0;
+			xMax=0;
+			xMin=0;
+			
+			ySummatory=0;
+			ySumaCuadratica=0;
+			yZcrSum=0;
+			yMax=0;
+			yMin=0;
+			
+			zSummatory=0;
+			zSumaCuadratica=0;
+			zZcrSum=0;
+			zMax=0;
+			zMin=0;
+			
+			xyzSummatory=0;
+			xyzMax=0;
+			
+			
+			//PUT 0 FREQ VARIABLES
+			//X
+			xMaxAmpl=0;
+			xIndexMaxAmpl=0;
+			//Y
+			yMaxAmpl=0;
+			yIndexMaxAmpl=0;
+			//Z
+			zMaxAmpl=0;
+			zIndexMaxAmpl=0;
 			
 		}
 		
@@ -155,6 +338,26 @@ public class Calculations {
 		return result;
 	}
 	
+	public double[] summatory(double mean, int i) {
+		double[] result=new double[4];
+		double summatory=0;
+		int counter=0;
+		
+		for(int j=0;j<samplesNumber;j++) {
+			double valuex=Double.parseDouble(sensor.get(i+j)[0]);
+			double valuey=Double.parseDouble(sensor.get(i+j)[1]);
+			double valuez=Double.parseDouble(sensor.get(i+j)[2]);
+			
+			double sqrtxyz=Math.sqrt(Math.pow(valuex, 2)+Math.pow(valuey, 2)+Math.pow(valuez, 2));
+			
+            summatory+=Math.pow((sqrtxyz-mean),2);
+            counter++;
+		}
+		result[0]=counter;
+		result[1]=summatory;
+		return result;
+	}
+	
 	public void labelsAvg() {
 		
 	}
@@ -167,6 +370,39 @@ public class Calculations {
 		this.sensor=sensor;
 	}
 	
+	public double correlation(int i, double xMean, double yMean, double sdx, double sdy,int pair) {
+		double correlation=0;
+		double summatory=0;
+		int column1=0;
+		int column2=0;
+		
+		switch (pair) {
+        case 0:  
+        	column1 = 0;
+        	column2 = 1;
+            break;
+        case 1:  
+        	column1 = 0;
+        	column2 = 2;
+            break;
+        case 2:  
+        	column1 = 1;
+        	column2 = 2;
+            break;
+        default:
+        	column1=0;
+        	column2=0;
+        	break;
+		}
+		
+		for(int j=0;j<samplesNumber;j++) {
+			summatory+=((Double.parseDouble(sensor.get(i+j)[column1]))-xMean)*((Double.parseDouble(sensor.get(i+j)[column2]))-yMean);
+		}
+		
+		correlation=summatory/((samplesNumber-1)*sdx*sdy);
+		
+		return correlation;
+	}
 	
 	
 }

@@ -17,6 +17,8 @@ public class TestCalc {
 		Calculations calculations=new Calculations(arraylabel,arraysensor);
 		calculations.generateCsv();
 		
+		
+		/*
 		//X-Y  XY
 		File sensorX=new File("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\featuresx.csv");
 		File sensorY=new File("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\featuresy.csv");
@@ -37,7 +39,7 @@ public class TestCalc {
 		ArrayList<String[]> arrayxyz=csvmanagerxyz.csvSensorToArray();
 		calculations.setSensor(arrayxyz);
 		calculations.xyzFeatures();
-
+*/
 	}
 
 }
