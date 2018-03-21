@@ -115,6 +115,8 @@ public class Calculations {
 		
 		for(int i=0; i<sensor.size()-samplesNumber;i+=(int)(samplesNumber*inverseOverlap)) {
 			
+			//Label stats
+			int[] labelsStats= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 			
 			
 			int n = (int) Math.pow(2,Math.round(Math.log10(samplesNumber)/Math.log10(2)));
@@ -165,17 +167,18 @@ public class Calculations {
 		    	
 		    	
 				//TODO:Take into account negative max. Don't start with max=0? also in the other maxs.
+				//TODO: ignoring first frequency cause is the continuos value. Correct?
 				//MAX AMPLITUDE
-				if(m!=1) {
-				 	if (freqarrayX[m]>xMaxAmpl) {
+				if(m!=0) {
+				 	if (freqarrayX[m]>xMaxAmpl|| m==1) {
 			    		xMaxAmpl=freqarrayX[m];
 			    		xIndexMaxAmpl=m;
 			    	}
-			    	if (freqarrayY[m]>yMaxAmpl) {
+			    	if (freqarrayY[m]>yMaxAmpl|| m==1) {
 			    		yMaxAmpl=freqarrayY[m];
 			    		yIndexMaxAmpl=m;
 			    	}
-			    	if (freqarrayZ[m]>zMaxAmpl) {
+			    	if (freqarrayZ[m]>zMaxAmpl|| m==1) {
 			    		zMaxAmpl=freqarrayZ[m];
 			    		zIndexMaxAmpl=m;
 			    	}
@@ -185,6 +188,11 @@ public class Calculations {
 			
 			
 			for(int j=0;j<samplesNumber;j++) {
+				
+				//Labels
+				int labelIndex=Integer.parseInt(labels.get(i+j));
+				labelsStats[labelIndex]+=1;
+			
 		
 				//Mean 
 				
@@ -203,22 +211,22 @@ public class Calculations {
                 zSummatory+=valuez;
                 zSumaCuadratica+=Math.pow(valuez, 2);
                 
-                if(valuex>xMax) {
+                if(valuex>xMax || j==0) {
                 	xMax=valuex;
                 }
-                if(valuey>yMax) {
+                if(valuey>yMax|| j==0) {
                 	yMax=valuey;
                 }
-                if(valuez>zMax) {
+                if(valuez>zMax|| j==0) {
                 	zMax=valuez;
                 }
-                if(valuex<xMin) {
+                if(valuex<xMin|| j==0) {
                 	xMin=valuex;
                 }
-                if(valuey<yMin) {
+                if(valuey<yMin|| j==0) {
                 	yMin=valuey;
                 }
-                if(valuez<zMin) {
+                if(valuez<zMin|| j==0) {
                 	zMin=valuez;
                 }
                 
@@ -236,7 +244,7 @@ public class Calculations {
                 double sqrtxyz=Math.sqrt(Math.pow(valuex, 2)+Math.pow(valuey, 2)+Math.pow(valuez, 2));
                 xyzSummatory+=sqrtxyz;
                 
-                if(sqrtxyz>xyzMax) {
+                if(sqrtxyz>xyzMax|| j==0) {
                 	xyzMax=sqrtxyz;
                 }
                 
@@ -341,9 +349,79 @@ public class Calculations {
 			double zSpeccentroid=zProductsc/zFreqSummatory;
 			
 		
+			//Label
+			int labelMaxIndex=0;
+			for (int v=0;v<labelsStats.length;v++) {
+				if(labelsStats[v]>labelMaxIndex) {
+					labelMaxIndex=v;
+				}
+			}
+			
+			String featureClass="Zero";
+			switch(labelMaxIndex) {
+			case 0:
+				featureClass="Zero";
+				break;
+			case 1:
+				featureClass="One";
+				break;
+			case 2:
+				featureClass="Two";
+				break;
+			case 3:
+				featureClass="Three";
+				break;
+			case 4:
+				featureClass="Four";
+				break;
+			case 5:
+				featureClass="Five";
+				break;
+			case 6:
+				featureClass="Six";
+				break;
+			case 7:
+				featureClass="Seven";
+				break;
+			case 8:
+				featureClass="Eight";
+				break;
+			case 9:
+				featureClass="Nine";
+				break;
+			case 10:
+				featureClass="Ten";
+				break;
+			case 11:
+				featureClass="Eleven";
+				break;
+			case 12:
+				featureClass="Twelve";
+				break;
+			case 13:
+				featureClass="Thirteen";
+				break;
+			case 14:
+				featureClass="Fourteen";
+				break;
+			case 15:
+				featureClass="Fifteen";
+				break;
+			case 16:
+				featureClass="Sixteen";
+				break;
+			case 17:
+				featureClass="Seventeen";
+				break;
+			default:
+				featureClass="Zero";
+				break;
+				
+			}
+			
 			
 			//Write line
-			String featureClass="None";
+			//String featureClass="None";
 			String xFeatures=xMean+","+xsd+","+xsk+","+xzcr+","+xmcr+","+xrms+","+xenergy+","+xrange;
 			String yFeatures=yMean+","+ysd+","+ysk+","+yzcr+","+ymcr+","+yrms+","+yenergy+","+yrange;
 			String zFeatures=zMean+","+zsd+","+zsk+","+zzcr+","+zmcr+","+zrms+","+zenergy+","+zrange;
