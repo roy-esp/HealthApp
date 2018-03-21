@@ -35,7 +35,7 @@ public class Calculations {
 		
 		
 		
-		labelsAvg();
+
 		
 	}
 	
@@ -71,15 +71,46 @@ public class Calculations {
 		//X
 		double xMaxAmpl=0;
 		int xIndexMaxAmpl=0;
+		double xFreqSummatory=0;
+		double xProductsc=0;
+		double xFreqSumaCuadratica=0;
+		
 		//Y
 		double yMaxAmpl=0;
 		int yIndexMaxAmpl=0;
+		double yFreqSummatory=0;
+		double yProductsc=0;
+		double yFreqSumaCuadratica=0;
+		
 		//Z
 		double zMaxAmpl=0;
 		int zIndexMaxAmpl=0;
-
+		double zFreqSummatory=0;
+		double zProductsc=0;
+		double zFreqSumaCuadratica=0;
+		
 		
 		PrintWriter writer = new PrintWriter("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\features.csv");
+		
+		/*
+		 * 
+		 * String xFeatures=xMean+","+xsd+","+xsk+","+xzcr+","+xmcr+","+xrms+","+xenergy+","+xrange;
+			String yFeatures=yMean+","+ysd+","+ysk+","+yzcr+","+ymcr+","+yrms+","+yenergy+","+yrange;
+			String zFeatures=zMean+","+zsd+","+zsk+","+zzcr+","+zmcr+","+zrms+","+zenergy+","+zrange;
+			String xyzFeatures=xyzMean+","+xyzsd+","+xyzMax+","+xycorrelation+","+xzcorrelation+","+yzcorrelation;
+			String freqFeatures=xFreqMean+","+xFreqsd+","+xMaxAmpl+","+xIndexMaxAmpl+","+xSpeccentroid+","+xSpectralEntropy+","+yFreqMean+","+yFreqsd+","+yMaxAmpl+","+yIndexMaxAmpl+","+ySpeccentroid+","+ySpectralEntropy+","+zFreqMean+","+zFreqsd+","+zMaxAmpl+","+zIndexMaxAmpl+","+zSpeccentroid+","+zSpectralEntropy;
+		 */
+		
+		//Attributes names:
+		String attClass="Class";
+		String xAtts="xMean,xStandardDeviation,xSkewness,xZeroCrossingRate,xMeanCrossingRate,xRootMeanSquare,xEnergy,xRange";
+		String yAtts="yMean,yStandardDeviation,ySkewness,yZeroCrossingRate,yMeanCrossingRate,yRootMeanSquare,yEnergy,yRange";
+		String zAtts="zMean,zStandardDeviation,zSkewness,zZeroCrossingRate,zMeanCrossingRate,zRootMeanSquare,zEnergy,zRange";
+		String xyzAtts="xyzMean,xyzStandardDeviation,xyzMax,xyCorrelation,xzCorrelation,yzCorrelation";
+		String xFreqAtts="xFreqMean,xFreqStandardDeviation,xMaxAmpl,xFreqOfMaxAmpl,xSpectralCentroid,xSpectralEntropy";
+		String yFreqAtts="yFreqMean,yFreqStandardDeviation,yMaxAmpl,yFreqOfMaxAmpl,ySpectralCentroid,ySpectralEntropy";
+		String zFreqAtts="zFreqMean,zFreqStandardDeviation,zMaxAmpl,zFreqOfMaxAmpl,zSpectralCentroid,zSpectralEntropy";
+		writer.println(attClass+","+xAtts+","+yAtts+","+zAtts+","+xyzAtts+","+xFreqAtts+","+yFreqAtts+","+zFreqAtts);
 		
 		
 		for(int i=0; i<sensor.size()-samplesNumber;i+=(int)(samplesNumber*inverseOverlap)) {
@@ -88,15 +119,18 @@ public class Calculations {
 			
 			int n = (int) Math.pow(2,Math.round(Math.log10(samplesNumber)/Math.log10(2)));
 			double[][] timearray=new double[3][n];
-			for(int k=0; k<n;k++) {
-				if(k<sensor.size()) {
-					timearray[0][k]=Double.parseDouble(sensor.get(i+k)[0]);
+			for(int w=0;w<3;w++) {
+				for(int k=0; k<n;k++) {
+					if(k<sensor.size()) {
+						timearray[w][k]=Double.parseDouble(sensor.get(i+k)[w]);
+					}
+					else {
+						timearray[w][k]=0;
+					}
+					
 				}
-				else {
-					timearray[0][k]=0;
-				}
-				
 			}
+			
 			
 			//GET FREQ(FFT)
 			//X
@@ -110,21 +144,43 @@ public class Calculations {
 		    double[] freqarrayY=FreqCalc2.getFFT(fft, timearray[1], im);
 		    double[] freqarrayZ=FreqCalc2.getFFT(fft, timearray[2], im);
 		    
-		    for(int m=1; m<freqarrayX.length;m++) {
+		    for(int m=0; m<freqarrayX.length;m++) {
 		    	
-		    	//MAX AMPLITUDE
-		    	if (freqarrayX[m]>xMaxAmpl) {
-		    		xMaxAmpl=freqarrayX[m];
-		    		xIndexMaxAmpl=m;
-		    	}
-		    	if (freqarrayY[m]>yMaxAmpl) {
-		    		yMaxAmpl=freqarrayY[m];
-		    		yIndexMaxAmpl=m;
-		    	}
-		    	if (freqarrayZ[m]>zMaxAmpl) {
-		    		zMaxAmpl=freqarrayZ[m];
-		    		zIndexMaxAmpl=m;
-		    	}
+		    	//Mean
+				xFreqSummatory+=freqarrayX[m];
+				yFreqSummatory+=freqarrayY[m];
+				zFreqSummatory+=freqarrayZ[m];
+				
+				
+				//Spectral centroid
+				xProductsc+=freqarrayX[m]*m;
+				yProductsc+=freqarrayY[m]*m;
+				zProductsc+=freqarrayZ[m]*m;
+				
+               
+				//Suma cuadatica
+				xFreqSumaCuadratica+=Math.pow(freqarrayX[m], 2);
+				yFreqSumaCuadratica+=Math.pow(freqarrayY[m], 2);
+				zFreqSumaCuadratica+=Math.pow(freqarrayZ[m], 2);
+		    	
+		    	
+				//TODO:Take into account negative max. Don't start with max=0? also in the other maxs.
+				//MAX AMPLITUDE
+				if(m!=1) {
+				 	if (freqarrayX[m]>xMaxAmpl) {
+			    		xMaxAmpl=freqarrayX[m];
+			    		xIndexMaxAmpl=m;
+			    	}
+			    	if (freqarrayY[m]>yMaxAmpl) {
+			    		yMaxAmpl=freqarrayY[m];
+			    		yIndexMaxAmpl=m;
+			    	}
+			    	if (freqarrayZ[m]>zMaxAmpl) {
+			    		zMaxAmpl=freqarrayZ[m];
+			    		zIndexMaxAmpl=m;
+			    	}
+				}
+		   
 		    }
 			
 			
@@ -259,16 +315,41 @@ public class Calculations {
 			
 			
 			//Freq
+			//Mean amplitude
+			double xFreqMean=xFreqSummatory/(freqarrayX.length);
+			double yFreqMean=yFreqSummatory/(freqarrayY.length);
+			double zFreqMean=zFreqSummatory/(freqarrayZ.length);
+			
+			//Standard deviation & spectral entropy
+			double[] xFreqSumArray=freqSummatory(xFreqMean,freqarrayX, xFreqSumaCuadratica);
+			double xFreqsd=Math.sqrt(xFreqSumArray[0]/freqarrayX.length);
+			double xSpectralEntropy=xFreqSumArray[1];
+			
+			double[] yFreqSumArray=freqSummatory(yFreqMean,freqarrayY, yFreqSumaCuadratica);
+			double yFreqsd=Math.sqrt(yFreqSumArray[0]/freqarrayY.length);
+			double ySpectralEntropy=yFreqSumArray[1];
+			
+			double[] zFreqSumArray=freqSummatory(zFreqMean,freqarrayZ, zFreqSumaCuadratica);
+			double zFreqsd=Math.sqrt(zFreqSumArray[0]/freqarrayZ.length);
+			double zSpectralEntropy=zFreqSumArray[1];
+			
+			//Median amplitude
+			//Spectral centroid
+			//TODO: Check this is not working always 128. Check i+j things.
+			double xSpeccentroid=xProductsc/xFreqSummatory;
+			double ySpeccentroid=yProductsc/yFreqSummatory;
+			double zSpeccentroid=zProductsc/zFreqSummatory;
 			
 		
 			
 			//Write line
+			String featureClass="None";
 			String xFeatures=xMean+","+xsd+","+xsk+","+xzcr+","+xmcr+","+xrms+","+xenergy+","+xrange;
 			String yFeatures=yMean+","+ysd+","+ysk+","+yzcr+","+ymcr+","+yrms+","+yenergy+","+yrange;
 			String zFeatures=zMean+","+zsd+","+zsk+","+zzcr+","+zmcr+","+zrms+","+zenergy+","+zrange;
 			String xyzFeatures=xyzMean+","+xyzsd+","+xyzMax+","+xycorrelation+","+xzcorrelation+","+yzcorrelation;
-			String freqFeatures=xMaxAmpl+","+xIndexMaxAmpl+","+yMaxAmpl+","+yIndexMaxAmpl+","+zMaxAmpl+","+zIndexMaxAmpl;
-			writer.println(xFeatures+","+yFeatures+","+zFeatures+","+xyzFeatures+","+freqFeatures);
+			String freqFeatures=xFreqMean+","+xFreqsd+","+xMaxAmpl+","+xIndexMaxAmpl+","+xSpeccentroid+","+xSpectralEntropy+","+yFreqMean+","+yFreqsd+","+yMaxAmpl+","+yIndexMaxAmpl+","+ySpeccentroid+","+ySpectralEntropy+","+zFreqMean+","+zFreqsd+","+zMaxAmpl+","+zIndexMaxAmpl+","+zSpeccentroid+","+zSpectralEntropy;
+			writer.println(featureClass+","+xFeatures+","+yFeatures+","+zFeatures+","+xyzFeatures+","+freqFeatures);
 			
 			//Put 0 variables
 			xSummatory=0;
@@ -297,12 +378,21 @@ public class Calculations {
 			//X
 			xMaxAmpl=0;
 			xIndexMaxAmpl=0;
+			xFreqSummatory=0;
+			xProductsc=0;
+			xFreqSumaCuadratica=0;
 			//Y
 			yMaxAmpl=0;
 			yIndexMaxAmpl=0;
+			yFreqSummatory=0;
+			yProductsc=0;
+			yFreqSumaCuadratica=0;
 			//Z
 			zMaxAmpl=0;
 			zIndexMaxAmpl=0;
+			zFreqSummatory=0;
+			zProductsc=0;
+			zFreqSumaCuadratica=0;
 			
 		}
 		
@@ -335,6 +425,26 @@ public class Calculations {
 		result[1]=summatory;
 		result[2]=summatory2;
 		result[3]=mcrSum;
+		return result;
+	}
+	
+	public double[] freqSummatory(double mean, double[] freqarray, double freqSumaCuadratica) {
+		double[] result=new double[2];
+		double summatory=0;
+		double summatory2=0;
+
+		for(int j=0;j<freqarray.length;j++) {
+			double valuex=freqarray[j];
+            summatory+=Math.pow((valuex-mean),2);
+            double pj=(Math.pow(valuex, 2))/freqSumaCuadratica;
+            summatory2+=pj*Math.log10(pj);
+
+		}
+		
+		result[0]=summatory;
+		result[1]=summatory2*(-1);
+		
+		
 		return result;
 	}
 	
