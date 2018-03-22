@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.PrintWriter;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -18,16 +17,14 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
 
-
-//CREATES A RANDOM FOREST MODEL, SAVES IT, AND THEN LOADS IT AND CLASSIFIES AN INPUT
-
-public class Start {
+public class StartCSV {
 
 	public static void main(String[] args) throws Exception{
-		Instances trainingSet = new Instances(
-		         new BufferedReader(
-		           new FileReader("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\features.arff")));
-		trainingSet.setClassIndex(48);//classlabel is in column 0
+		File csvFile=new File("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\features.csv");
+		CSVLoader loader = new CSVLoader();
+	    loader.setSource(csvFile);
+		Instances trainingSet=loader.getDataSet();
+		trainingSet.setClassIndex(0);//classlabel is in column 0
 		createNewModel(trainingSet);
 		classifyNewArff(trainingSet);//classlabel is in column 0
 	    
@@ -53,30 +50,22 @@ public class Start {
 		 
 		 //cls.setOptions(options);    
 		 cls.buildClassifier(data);
-		 weka.core.SerializationHelper.write("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\byjava.model", cls);
+		 weka.core.SerializationHelper.write("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\forestmodel.model", cls);
 	}
 	
 	private static void classifyNewArff(Instances unlabeled) throws Exception{
 		//Load model
-		Classifier cls = (Classifier) weka.core.SerializationHelper.read("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\byjava.model");
+		Classifier cls = (Classifier) weka.core.SerializationHelper.read("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\forestmodel.model");
 		
-		unlabeled.setClassIndex(48);
+		
 
 		
-		PrintWriter writer=new PrintWriter("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\ClassificationOutput.txt");
 		// label instances
 		for (int i = 0; i < unlabeled.numInstances(); i++) {
-			//TODO:
-			
-			double clsLabel = cls.classifyInstance(unlabeled.instance(i));
-			writer.println(unlabeled.classAttribute().value((int)clsLabel));
-			
-			/*
-			double clsLabel = cls.classifyInstance(unlabeled.instance(i));
-			writer.println(clsLabel);
-			*/
+		double clsLabel = cls.classifyInstance(unlabeled.instance(i));
+		System.out.println(clsLabel);
 		}
-		writer.close();
+		
 	}
 	
 	private static void trainAndTestModelArff() throws Exception{

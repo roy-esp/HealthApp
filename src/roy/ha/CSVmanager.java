@@ -24,6 +24,7 @@ public class CSVmanager {
 	    CSVLoader loader = new CSVLoader();
 	    loader.setSource(csvFile);
 	    Instances data = loader.getDataSet();
+	    data.setClassIndex(48);
 	 
 	    // save ARFF
 	    ArffSaver saver = new ArffSaver();

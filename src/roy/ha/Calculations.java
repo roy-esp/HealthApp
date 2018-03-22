@@ -110,7 +110,7 @@ public class Calculations {
 		String xFreqAtts="xFreqMean,xFreqStandardDeviation,xMaxAmpl,xFreqOfMaxAmpl,xSpectralCentroid,xSpectralEntropy";
 		String yFreqAtts="yFreqMean,yFreqStandardDeviation,yMaxAmpl,yFreqOfMaxAmpl,ySpectralCentroid,ySpectralEntropy";
 		String zFreqAtts="zFreqMean,zFreqStandardDeviation,zMaxAmpl,zFreqOfMaxAmpl,zSpectralCentroid,zSpectralEntropy";
-		writer.println(attClass+","+xAtts+","+yAtts+","+zAtts+","+xyzAtts+","+xFreqAtts+","+yFreqAtts+","+zFreqAtts);
+		writer.println(xAtts+","+yAtts+","+zAtts+","+xyzAtts+","+xFreqAtts+","+yFreqAtts+","+zFreqAtts+","+attClass);
 		
 		
 		for(int i=0; i<sensor.size()-samplesNumber;i+=(int)(samplesNumber*inverseOverlap)) {
@@ -427,7 +427,7 @@ public class Calculations {
 			String zFeatures=zMean+","+zsd+","+zsk+","+zzcr+","+zmcr+","+zrms+","+zenergy+","+zrange;
 			String xyzFeatures=xyzMean+","+xyzsd+","+xyzMax+","+xycorrelation+","+xzcorrelation+","+yzcorrelation;
 			String freqFeatures=xFreqMean+","+xFreqsd+","+xMaxAmpl+","+xIndexMaxAmpl+","+xSpeccentroid+","+xSpectralEntropy+","+yFreqMean+","+yFreqsd+","+yMaxAmpl+","+yIndexMaxAmpl+","+ySpeccentroid+","+ySpectralEntropy+","+zFreqMean+","+zFreqsd+","+zMaxAmpl+","+zIndexMaxAmpl+","+zSpeccentroid+","+zSpectralEntropy;
-			writer.println(featureClass+","+xFeatures+","+yFeatures+","+zFeatures+","+xyzFeatures+","+freqFeatures);
+			writer.println(xFeatures+","+yFeatures+","+zFeatures+","+xyzFeatures+","+freqFeatures+","+featureClass);
 			
 			//Put 0 variables
 			xSummatory=0;
