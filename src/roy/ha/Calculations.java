@@ -14,15 +14,17 @@ public class Calculations {
 	
 	private ArrayList<String> labels;
 	private ArrayList<String[]> sensor;
+	private PrintWriter writer;
 	
 	private static final int samplesNumber=300;//(Window length 3sec (300 samples)
 	private static final double windowOverlap=0.8;
 	private static final double inverseOverlap=0.2;
 	
 	
-	public Calculations(ArrayList<String> labels, ArrayList<String[]> sensor) {
+	public Calculations(ArrayList<String> labels, ArrayList<String[]> sensor, PrintWriter writer) {
 		this.labels=labels;
 		this.sensor=sensor;
+		this.writer=writer;
 	}
 	
 	public void generateCsv() throws Exception{
@@ -90,16 +92,7 @@ public class Calculations {
 		double zFreqSumaCuadratica=0;
 		
 		
-		PrintWriter writer = new PrintWriter("C:\\Users\\Roy\\Documents\\tfg\\calculations\\prueba data\\features.csv");
-		
-		/*
-		 * 
-		 * String xFeatures=xMean+","+xsd+","+xsk+","+xzcr+","+xmcr+","+xrms+","+xenergy+","+xrange;
-			String yFeatures=yMean+","+ysd+","+ysk+","+yzcr+","+ymcr+","+yrms+","+yenergy+","+yrange;
-			String zFeatures=zMean+","+zsd+","+zsk+","+zzcr+","+zmcr+","+zrms+","+zenergy+","+zrange;
-			String xyzFeatures=xyzMean+","+xyzsd+","+xyzMax+","+xycorrelation+","+xzcorrelation+","+yzcorrelation;
-			String freqFeatures=xFreqMean+","+xFreqsd+","+xMaxAmpl+","+xIndexMaxAmpl+","+xSpeccentroid+","+xSpectralEntropy+","+yFreqMean+","+yFreqsd+","+yMaxAmpl+","+yIndexMaxAmpl+","+ySpeccentroid+","+ySpectralEntropy+","+zFreqMean+","+zFreqsd+","+zMaxAmpl+","+zIndexMaxAmpl+","+zSpeccentroid+","+zSpectralEntropy;
-		 */
+	
 		
 		//Attributes names:
 		String attClass="Class";
@@ -116,7 +109,7 @@ public class Calculations {
 		for(int i=0; i<sensor.size()-samplesNumber;i+=(int)(samplesNumber*inverseOverlap)) {
 			
 			//Label stats
-			int[] labelsStats= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+			int[] labelsStats= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 			
 			
 			int n = (int) Math.pow(2,Math.round(Math.log10(samplesNumber)/Math.log10(2)));
@@ -360,61 +353,79 @@ public class Calculations {
 			String featureClass="Zero";
 			switch(labelMaxIndex) {
 			case 0:
-				featureClass="Zero";
+				featureClass="None or unclasified activity";
 				break;
 			case 1:
-				featureClass="One";
+				featureClass="Walking";
 				break;
 			case 2:
-				featureClass="Two";
+				featureClass="Running";
 				break;
 			case 3:
-				featureClass="Three";
+				featureClass="Shuffling";
 				break;
 			case 4:
-				featureClass="Four";
+				featureClass="Ascending stairs";
 				break;
 			case 5:
-				featureClass="Five";
+				featureClass="Descending stairs";
 				break;
 			case 6:
-				featureClass="Six";
+				featureClass="Standing";
 				break;
 			case 7:
-				featureClass="Seven";
+				featureClass="Sitting";
 				break;
 			case 8:
-				featureClass="Eight";
+				featureClass="Lying";
 				break;
 			case 9:
-				featureClass="Nine";
+				featureClass="Transition";
 				break;
 			case 10:
-				featureClass="Ten";
+				featureClass="Bending";
 				break;
 			case 11:
-				featureClass="Eleven";
+				featureClass="Picking";
 				break;
 			case 12:
-				featureClass="Twelve";
+				featureClass="Undefined";
 				break;
 			case 13:
-				featureClass="Thirteen";
+				featureClass="Cycling (sit)";
 				break;
 			case 14:
-				featureClass="Fourteen";
+				featureClass="Cycling (stand)";
 				break;
 			case 15:
-				featureClass="Fifteen";
+				featureClass="Heel drop";
 				break;
 			case 16:
-				featureClass="Sixteen";
+				featureClass="Vigorous activity";
 				break;
 			case 17:
-				featureClass="Seventeen";
+				featureClass="Non-Vigorous activity";
+				break;
+			case 18:
+				featureClass="Transport (sitting)";
+				break;
+			case 19:
+				featureClass="Commute (standing)";
+				break;
+			case 20:
+				featureClass="Lying (prone)";
+				break;
+			case 21:
+				featureClass="Lying (supine)";
+				break;
+			case 22:
+				featureClass="Lying (left)";
+				break;
+			case 23:
+				featureClass="Lying (right)";
 				break;
 			default:
-				featureClass="Zero";
+				featureClass="None or unclasified activity";
 				break;
 				
 			}
